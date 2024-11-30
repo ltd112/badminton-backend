@@ -1,5 +1,8 @@
 package com.iuh.fit.badminton_backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.iuh.fit.badminton_backend.util.CustomLocalDateDeserializer;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -22,6 +25,8 @@ public class UserDTO {
 
     private String phoneNumber; // Số điện thoại
 
+    @JsonDeserialize(using = CustomLocalDateDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate dateOfBirth; // Ngày sinh
 
     private List<CourseDTO> courses; // Danh sách khóa học (nếu là Hướng dẫn viên)

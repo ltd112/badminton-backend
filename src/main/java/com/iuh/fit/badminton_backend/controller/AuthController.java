@@ -57,9 +57,9 @@ public class AuthController {
         // Kiểm tra mật khẩu (so sánh trực tiếp, không mã hóa)
         UserDTO user = userOptional.get();
         if (!userDTO.getPassword().equals(user.getPassword())) {
-            return ApiResponse.error("Mật khẩu không chính xác", null);
+            return ApiResponse.error("Mật khẩu không chính xác", user.getUsername());
         }
 
-        return ApiResponse.success("Đăng nhập thành công", null);
+        return ApiResponse.success("Đăng nhập thành công", user.getUsername());
     }
 }
