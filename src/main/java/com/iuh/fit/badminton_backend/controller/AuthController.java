@@ -45,6 +45,7 @@ public class AuthController {
         // Kiểm tra username
         Optional<UserDTO> userOptional = userService.getUserByUsername(userDTO.getUsername());
         if (userOptional.isEmpty()) {
+
             return ResponseEntity.status(404)
                     .body(ApiResponse.error("Tên đăng nhập không tồn tại", null));
         }
