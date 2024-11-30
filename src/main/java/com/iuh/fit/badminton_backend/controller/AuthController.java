@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -36,7 +37,7 @@ public class AuthController {
 
         // Tạo người dùng mới
         UserDTO savedUser = userService.addUsers(userDTO);
-        return ResponseEntity.status(201)
+        return ResponseEntity.status(200)
                 .body(ApiResponse.success("Đăng ký thành công", savedUser));
     }
 
@@ -69,5 +70,61 @@ public class AuthController {
 
         UserDTO user = userOptional.get();
         return ResponseEntity.ok(ApiResponse.success("Mật khẩu của bạn là: " + user.getPassword(), null));
+    }
+
+    /**
+     * Get a user by ID.
+     * @param id the ID of the user.
+     * @return ApiResponse containing user data.
+     */
+    @GetMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<UserDTO>> getUserById(@PathVariable Long id) {
+        Optional<UserDTO> userDTO = userService.getUserById(id);
+        return userDTO.map(dto -> ResponseEntity.ok(ApiResponse.success("Tìm thấy người dùng", dto))).orElseGet(() -> ResponseEntity.status(404)
+                .body(ApiResponse.error("Người dùng không tồn tại", null)));
+    }
+
+    /**
+     * Get all users.
+     * @return ApiResponse containing the list of all users.
+     */
+    @GetMapping("/users")
+    public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsers() {
+        List<UserDTO> userList = userService.getAllUsers();
+        return ResponseEntity.ok(ApiResponse.success("Danh sách người dùng", userList));
+    }
+
+    /**
+     * Update a user by ID.
+     * @param id the ID of the user.
+     * @param userDTO the updated user data.
+     * @return ApiResponse containing the updated user data.
+     */
+    @PutMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<UserDTO>> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+        UserDTO updatedUser = userService.updateUser(id, userDTO);
+        if (updatedUser != null) {
+            return ResponseEntity.ok(ApiResponse.success("Cập nhật người dùng thành công", updatedUser));
+        } else {
+            return ResponseEntity.status(404)
+                    .body(ApiResponse.error("Người dùng không tồn tại", null));
+        }
+    }
+
+    /**
+     * Delete a user by ID.
+     * @param id the ID of the user.
+     * @return ApiResponse with status of delete operation.
+     */
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable Long id) {
+        Optional<UserDTO> userDTO = userService.getUserById(id);
+        if (userDTO.isPresent()) {
+            userService.deleteUser(id);
+            return ResponseEntity.ok(ApiResponse.success("Xóa người dùng thành công", null));
+        } else {
+            return ResponseEntity.status(404)
+                    .body(ApiResponse.error("Người dùng không tồn tại", null));
+        }
     }
 }

@@ -29,9 +29,7 @@ public class UserDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate dateOfBirth; // Ngày sinh
 
-    private List<CourseDTO> courses; // Danh sách khóa học (nếu là Hướng dẫn viên)
-
-    private List<RegistrationDTO> registrations; // Danh sách học viên đã đăng ký (nếu là Học viên)
+    // Danh sách học viên đã đăng ký (nếu là Học viên)
 
     // Getters and Setters
 }
