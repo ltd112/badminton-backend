@@ -56,17 +56,53 @@ public class UserService {
 
     /**
      * Save or update a user.
-     * @param userDTO the user DTO to be saved or updated.
+     * @param userDTO the user DTO to save .
      * @return the saved or updated user DTO.
      */
-    public UserDTO saveOrUpdateUser(UserDTO userDTO) {
-        User user = genericMapper.convertToEntity(userDTO, User.class);
+    public UserDTO addUsers(UserDTO userDTO) {
+        // check if the user already exists
+        Optional<User> existingUser = userRepository.findByUsername(userDTO.getUsername());
+        // if user already not exists, create new user
+        if (existingUser.isEmpty()) {
+            User user = genericMapper.convertToEntity(userDTO, User.class);
+            User savedUser = userRepository.save(user);
+            return genericMapper.convertToDto(savedUser, UserDTO.class);
+        }
+        // if user already exists, thông báo user đã tồn tại
+        return null;
+    }
 
-        // log the user's emal
-        System.out.println("User email: " + user);
-        User savedUser = userRepository.save(user);
+    /**
+     * Update an existing user.
+     * @param id the ID of the user to update.
+     * @param userDTO the updated user DTO.
+     * @return the updated user DTO.
+     */
+
+    public UserDTO updateUser(Long id, UserDTO userDTO) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            return null;
+        }
+        User updatedUser = genericMapper.convertToEntity(userDTO, User.class);
+        updatedUser.setId(id);
+        User savedUser = userRepository.save(updatedUser);
         return genericMapper.convertToDto(savedUser, UserDTO.class);
     }
+
+    /**
+     * Get all users.
+     * @return a list of UserDTOs.
+     */
+
+    public List<UserDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(user -> genericMapper.convertToDto(user, UserDTO.class))
+                .toList();
+    }
+
+
 
     /**
      * Delete a user by ID.

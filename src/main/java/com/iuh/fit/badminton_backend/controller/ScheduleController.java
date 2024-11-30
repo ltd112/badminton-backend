@@ -83,13 +83,26 @@ public class ScheduleController {
 
     /**
      * Save or update a schedule.
-     * @param scheduleDTO the schedule DTO to save or update.
+     * @param scheduleDTO the schedule DTO to save .
      * @return ApiResponse containing the saved or updated schedule.
      */
-    @PostMapping
-    public ApiResponse<ScheduleDTO> saveOrUpdateSchedule(@RequestBody ScheduleDTO scheduleDTO) {
-        ScheduleDTO savedSchedule = scheduleService.saveOrUpdateSchedule(scheduleDTO);
+    @PostMapping("/add")
+    public ApiResponse<ScheduleDTO> saveSchedule(@RequestBody ScheduleDTO scheduleDTO) {
+        ScheduleDTO savedSchedule = scheduleService.addSchedule(scheduleDTO);
         return ApiResponse.success("Schedule saved successfully", savedSchedule);
+    }
+
+    /**
+     * Update an existing schedule.
+     * @param scheduleDTO the updated schedule DTO.
+     * @param id the ID of the schedule to update.
+     * @return ApiResponse containing the updated schedule.
+     */
+    @PostMapping("/update")
+    public ApiResponse<ScheduleDTO> updateSchedule(@RequestBody ScheduleDTO scheduleDTO, @RequestParam Long id) {
+        Optional<ScheduleDTO> updatedSchedule = scheduleService.updateSchedule(id, scheduleDTO);
+        return updatedSchedule.map(dto -> ApiResponse.success("Schedule updated successfully", dto))
+                .orElseGet(() -> ApiResponse.error("Schedule not found", null));
     }
 
     /**
@@ -111,9 +124,7 @@ public class ScheduleController {
     @GetMapping("/{id}")
     public ApiResponse<ScheduleDTO> getScheduleById(@PathVariable Long id) {
         Optional<ScheduleDTO> schedule = scheduleService.getScheduleById(id);
-        if (schedule.isEmpty()) {
-            return ApiResponse.error("Schedule not found", null);
-        }
-        return ApiResponse.success("Schedule fetched successfully", schedule.get());
+        return schedule.map(scheduleDTO -> ApiResponse.success("Schedule fetched successfully", scheduleDTO))
+                .orElseGet(() -> ApiResponse.error("Schedule not found", null));
     }
 }

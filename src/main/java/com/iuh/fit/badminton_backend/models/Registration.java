@@ -1,20 +1,17 @@
 package com.iuh.fit.badminton_backend.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-
 @Entity
 @Table(name = "registrations")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Registration {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,5 +32,4 @@ public class Registration {
     private boolean paymentStatus;
 
     private Double feePaid;
-
 }
