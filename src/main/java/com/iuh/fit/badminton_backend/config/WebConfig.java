@@ -13,8 +13,7 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*") // Adjust the origin as needed
-//                        .allowedOrigins("http://192.168.99.218:8081") // Adjust the origin as needed
+                        .allowedOriginPatterns("*") // Use patterns to allow multiple subdomains
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
