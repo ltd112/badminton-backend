@@ -16,7 +16,7 @@ public class Lesson {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
+    @JoinColumn(name = "course_id")
     private Course course; // Thuộc về khóa học nào
 
     @Column(nullable = false)
@@ -32,7 +32,7 @@ public class Lesson {
 
     private String documentUrl;
     // img save in database as bytea
-    private byte[] img;
+    private String img;
 
 
     // Getters and Setters

@@ -21,6 +21,6 @@ public class LessonDTO {
 
     private String documentUrl; // URL tài liệu đi kèm (nếu có)
 
-    private byte[] img; // Hình ảnh minh họa (nếu có)
+    private String img; // Hình ảnh minh họa (nếu có)
     // Getters and Setters
 }

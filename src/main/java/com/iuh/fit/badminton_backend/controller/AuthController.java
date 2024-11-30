@@ -60,6 +60,6 @@ public class AuthController {
             return ApiResponse.error("Mật khẩu không chính xác", null);
         }
 
-        return ApiResponse.success("Đăng nhập thành công", null);
+        return ApiResponse.success("Đăng nhập thành công", user.getRole());
     }
 }
