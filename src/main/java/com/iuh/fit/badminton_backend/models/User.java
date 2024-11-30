@@ -7,15 +7,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
-
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +26,7 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String role; // Values: ADMIN, STUDENT, COACH
+    private String role; // ADMIN, STUDENT, COACH
 
     @Column(nullable = false)
     private String fullName;
@@ -37,16 +35,5 @@ public class User {
     private String email;
 
     private String phoneNumber;
-
     private LocalDate dateOfBirth;
-
-    // Relationships
-    @OneToMany(mappedBy = "student")
-    private List<Registration> registrations;
-
-    @OneToMany(mappedBy = "coach")
-    private List<Course> courses;
-
-    // Getters and Setters
 }
-

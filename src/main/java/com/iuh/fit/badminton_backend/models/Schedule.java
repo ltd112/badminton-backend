@@ -1,20 +1,16 @@
 package com.iuh.fit.badminton_backend.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-
 @Entity
 @Table(name = "schedules")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Schedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,8 +26,5 @@ public class Schedule {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    @Column(nullable = false)
     private String location;
-
-    // Getters and Setters
 }
