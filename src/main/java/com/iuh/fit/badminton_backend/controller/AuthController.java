@@ -42,7 +42,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<String>> login(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<ApiResponse<UserDTO>> login(@RequestBody UserDTO userDTO) {
         // Kiểm tra username
         Optional<UserDTO> userOptional = userService.getUserByUsername(userDTO.getUsername());
         if (userOptional.isEmpty()) {
@@ -57,7 +57,7 @@ public class AuthController {
                     .body(ApiResponse.error("Mật khẩu không chính xác", null));
         }
 
-        return ResponseEntity.ok(ApiResponse.success("Đăng nhập thành công", user.getRole()));
+        return ResponseEntity.ok(ApiResponse.success("Đăng nhập thành công", user));
     }
 
     @PostMapping("/forgot-password")
