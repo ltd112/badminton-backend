@@ -1,20 +1,16 @@
 package com.iuh.fit.badminton_backend.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
-
+@Table(name = "feedbacks")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "feedbacks")
 public class Feedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,11 +25,6 @@ public class Feedback {
     private Course course;
 
     private String content;
-
-    private int rating; // Rating from 1 to 5
-
+    private int rating; // From 1 to 5
     private LocalDate feedbackDate;
-
-    // Getters and Setters
 }
-

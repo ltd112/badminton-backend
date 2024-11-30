@@ -1,11 +1,12 @@
 package com.iuh.fit.badminton_backend.models;
 
 import jakarta.persistence.*;
+
 import lombok.*;
+
 
 @Entity
 @Table(name = "lessons")
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,23 +18,16 @@ public class Lesson {
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
-    private Course course; // Thuộc về khóa học nào
+    private Course course;
 
     @Column(nullable = false)
-    private String title; // Tên bài học
+    private String title;
 
-    @Column(nullable = false, length = 5000)
-    private String content; // Nội dung chi tiết bài học
+    @Column(nullable = false, length = 2000)
+    private String content;
 
-    private int lessonOrder; // Thứ tự của bài học trong khóa
+    private int lessonOrder;
 
-    // Video hoặc tài liệu đi kèm
     private String videoUrl;
-
     private String documentUrl;
-    // img save in database as bytea
-    private byte[] img;
-
-
-    // Getters and Setters
 }

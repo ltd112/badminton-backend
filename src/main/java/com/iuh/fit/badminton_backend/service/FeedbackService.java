@@ -1,9 +1,15 @@
 package com.iuh.fit.badminton_backend.service;
 
+import com.iuh.fit.badminton_backend.dto.CourseDTO;
+import com.iuh.fit.badminton_backend.dto.UserDTO;
 import com.iuh.fit.badminton_backend.mapper.GenericMapper;
+import com.iuh.fit.badminton_backend.models.Course;
 import com.iuh.fit.badminton_backend.models.Feedback;
 import com.iuh.fit.badminton_backend.dto.FeedbackDTO;
+import com.iuh.fit.badminton_backend.models.User;
+import com.iuh.fit.badminton_backend.repository.CourseRepository;
 import com.iuh.fit.badminton_backend.repository.FeedbackRepository;
+import com.iuh.fit.badminton_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +22,15 @@ public class FeedbackService {
 
     private final FeedbackRepository feedbackRepository;
     private final GenericMapper genericMapper;
+    private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public FeedbackService(FeedbackRepository feedbackRepository, GenericMapper genericMapper) {
+    public FeedbackService(FeedbackRepository feedbackRepository, GenericMapper genericMapper, CourseRepository courseRepository, UserRepository userRepository) {
         this.feedbackRepository = feedbackRepository;
         this.genericMapper = genericMapper;
+        this.courseRepository = courseRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -88,10 +98,56 @@ public class FeedbackService {
      * @param feedbackDTO đối tượng DTO của phản hồi
      * @return phản hồi đã được lưu hoặc cập nhật
      */
-    public FeedbackDTO saveOrUpdateFeedback(FeedbackDTO feedbackDTO) {
-        Feedback feedback = genericMapper.convertToEntity(feedbackDTO, Feedback.class);
-        Feedback savedFeedback = feedbackRepository.save(feedback);
-        return genericMapper.convertToDto(savedFeedback, FeedbackDTO.class);
+    public FeedbackDTO addFeedback(FeedbackDTO feedbackDTO) {
+        // Check if feedback already exists
+        Optional<Feedback> existingFeedback = feedbackRepository.findByStudentIdAndCourseId(feedbackDTO.getStudentId(), feedbackDTO.getCourseId());
+        if (existingFeedback.isEmpty()) {
+            // Check if course exists, if not, create new course
+            Course course = courseRepository.findById(feedbackDTO.getCourseId()).orElseGet(() -> {
+                Course newCourse = new Course();
+                newCourse.setId(feedbackDTO.getCourseId());
+                newCourse.setCourseName("New Course"); // Set other necessary fields
+                return courseRepository.save(newCourse);
+            });
+
+            // Check if user exists, if not, create new user
+            User user = userRepository.findById(feedbackDTO.getStudentId()).orElseGet(() -> {
+                User newUser = new User();
+                newUser.setId(feedbackDTO.getStudentId());
+                newUser.setUsername("New User"); // Set other necessary fields
+                return userRepository.save(newUser);
+            });
+
+            // Convert and save feedback
+            Feedback feedback = genericMapper.convertToEntity(feedbackDTO, Feedback.class);
+            feedback.setCourse(course);
+            feedback.setStudent(user);
+            Feedback savedFeedback = feedbackRepository.save(feedback);
+            return genericMapper.convertToDto(savedFeedback, FeedbackDTO.class);
+        }
+        // If feedback already exists, update feedback
+        return updateFeedback(feedbackDTO);
+    }
+
+    public FeedbackDTO getFeedbackById(Long id) {
+        Optional<Feedback> feedback = feedbackRepository.findById(id);
+        return feedback.map(f -> genericMapper.convertToDto(f, FeedbackDTO.class)).orElse(null);
+    }
+
+    public FeedbackDTO updateFeedback(FeedbackDTO feedbackDTO) {
+        // check if feedback already exists
+        Optional<Feedback> existingFeedback = feedbackRepository.findById(feedbackDTO.getId());
+        // if feedback already exists, update feedback
+        if (existingFeedback.isPresent()) {
+            //check course and student already exists
+
+
+            Feedback feedback = genericMapper.convertToEntity(feedbackDTO, Feedback.class);
+            Feedback updatedFeedback = feedbackRepository.save(feedback);
+            return genericMapper.convertToDto(updatedFeedback, FeedbackDTO.class);
+        }
+        // if feedback does not exist, create new feedback using fun addFeedback
+        return addFeedback(feedbackDTO);
     }
 
     /**
