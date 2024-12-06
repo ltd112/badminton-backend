@@ -82,10 +82,12 @@ public class CourseService {
 
     //tìm tất cả feedback khi biết id và feedbackDate
     // Tìm tất cả khóa học có feedback id
-    public List<CourseDTO> getCoursesByRatingAndFeedbackDate(int rating, LocalDate feedbackDate) {
-        List<Feedback> feedbacks = feedbackRepository.findByRatingAndFeedbackDate(rating, feedbackDate);
-        return feedbacks.stream()
-                .map(feedback -> genericMapper.convertToDto(courseRepository.findByFeedbackId(feedback.getId()), CourseDTO.class))
+
+    //getCoursesWithHighestRatings
+    public List<CourseDTO> getCoursesWithHighestRatingsInPeriod(LocalDate startDate, LocalDate endDate) {
+        List<Course> courses = courseRepository.findCoursesWithHighestRatingsInPeriod(startDate, endDate);
+        return courses.stream()
+                .map(course -> genericMapper.convertToDto(course, CourseDTO.class))
                 .toList();
     }
 }

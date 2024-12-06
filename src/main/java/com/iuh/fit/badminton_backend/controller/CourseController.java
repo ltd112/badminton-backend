@@ -86,12 +86,15 @@ public class CourseController {
     //tìm tất cả feedback khi biết id và feedbackDate
     // Tìm tất cả khóa học có feedback id
 
-    @PostMapping("/feedback/{id}/{feedbackDate}")
-    public ApiResponse<List<CourseDTO>> getCourseByFeedbackIdAndFeedbackDate(@PathVariable int rating, @PathVariable LocalDate feedbackDate) {
-        List<CourseDTO> courseDTOs = courseService.getCoursesByRatingAndFeedbackDate(rating, feedbackDate);
+
+    @GetMapping("/highest-rating-course")
+    public ApiResponse<List<CourseDTO>> findCoursesWithHighestRatingsInPeriod(@RequestParam String startDate, @RequestParam String endDate) {
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+        List<CourseDTO> courseDTOs = courseService.getCoursesWithHighestRatingsInPeriod(start, end);
         if (courseDTOs.isEmpty()) {
             return ApiResponse.error("Không tìm thấy khóa học nào", null);
         }
-        return ApiResponse.success("Lấy danh sách khóa học thành công", courseDTOs);
+        return ApiResponse.success("Lấy danh sách khóa học có rating cao nhất trong khoảng thời gian thành công", courseDTOs);
     }
 }
