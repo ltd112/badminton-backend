@@ -25,4 +25,8 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
 
     // Tìm tất cả phản hồi theo ngày gửi
     List<Feedback> findByFeedbackDate(LocalDate feedbackDate);
+
+    // tìm tất cả khóa học có rating và feedbackDate cụ thể
+    List<Feedback> findByRatingAndFeedbackDate(int rating, LocalDate feedbackDate);
+
 }

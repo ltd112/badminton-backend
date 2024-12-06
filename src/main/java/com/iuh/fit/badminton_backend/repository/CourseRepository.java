@@ -19,5 +19,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     // Tìm tất cả khóa học theo cấp độ
     List<Course> findByLevel(String level);
 
+    // tìm all khóa học có feedback id
+    List<Course> findByFeedbackId(Long feedbackId);
+
     // Tìm tất cả khóa học của một huấn luyện viên
 }

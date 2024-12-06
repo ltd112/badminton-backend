@@ -82,4 +82,16 @@ public class CourseController {
         courseService.deleteCourse(id);
         return ApiResponse.success("Khóa học đã được xóa thành công", null);
     }
+
+    //tìm tất cả feedback khi biết id và feedbackDate
+    // Tìm tất cả khóa học có feedback id
+
+    @PostMapping("/feedback/{id}/{feedbackDate}")
+    public ApiResponse<List<CourseDTO>> getCourseByFeedbackIdAndFeedbackDate(@PathVariable int rating, @PathVariable LocalDate feedbackDate) {
+        List<CourseDTO> courseDTOs = courseService.getCoursesByRatingAndFeedbackDate(rating, feedbackDate);
+        if (courseDTOs.isEmpty()) {
+            return ApiResponse.error("Không tìm thấy khóa học nào", null);
+        }
+        return ApiResponse.success("Lấy danh sách khóa học thành công", courseDTOs);
+    }
 }

@@ -3,7 +3,9 @@ package com.iuh.fit.badminton_backend.service;
 import com.iuh.fit.badminton_backend.mapper.GenericMapper;
 import com.iuh.fit.badminton_backend.models.Course;
 import com.iuh.fit.badminton_backend.dto.CourseDTO;
+import com.iuh.fit.badminton_backend.models.Feedback;
 import com.iuh.fit.badminton_backend.repository.CourseRepository;
+import com.iuh.fit.badminton_backend.repository.FeedbackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +18,13 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final GenericMapper genericMapper;
+    private final FeedbackRepository feedbackRepository;
 
     @Autowired
-    public CourseService(CourseRepository courseRepository, GenericMapper genericMapper) {
+    public CourseService(CourseRepository courseRepository, GenericMapper genericMapper, FeedbackRepository feedbackRepository) {
         this.courseRepository = courseRepository;
         this.genericMapper = genericMapper;
+        this.feedbackRepository = feedbackRepository;
     }
 
     /**
@@ -74,5 +78,14 @@ public class CourseService {
      */
     public void deleteCourse(Long id) {
         courseRepository.deleteById(id);
+    }
+
+    //tìm tất cả feedback khi biết id và feedbackDate
+    // Tìm tất cả khóa học có feedback id
+    public List<CourseDTO> getCoursesByRatingAndFeedbackDate(int rating, LocalDate feedbackDate) {
+        List<Feedback> feedbacks = feedbackRepository.findByRatingAndFeedbackDate(rating, feedbackDate);
+        return feedbacks.stream()
+                .map(feedback -> genericMapper.convertToDto(courseRepository.findByFeedbackId(feedback.getId()), CourseDTO.class))
+                .toList();
     }
 }
