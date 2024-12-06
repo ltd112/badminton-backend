@@ -6,21 +6,12 @@ import lombok.Data;
 public class LessonDTO {
 
     private Long id;
-
-    private Long courseId; // ID của khóa học mà bài học thuộc về
-
-    private String courseName; // Tên khóa học mà bài học thuộc về
-
-    private String title; // Tên bài học
-
-    private String content; // Nội dung chi tiết bài học
-
-    private int lessonOrder; // Thứ tự của bài học trong khóa học
-
-    private String videoUrl; // URL video đi kèm (nếu có)
-
-    private String documentUrl; // URL tài liệu đi kèm (nếu có)
-
-    private String img; // Hình ảnh minh họa (nếu có)
-    // Getters and Setters
+    private Long courseId;
+    private String courseName;
+    private String title;
+    private String content;
+    private int lessonOrder;
+    private String videoUrl; // URL video from S3
+    private String documentUrl;
+    private String img; // Image URL from S3
 }

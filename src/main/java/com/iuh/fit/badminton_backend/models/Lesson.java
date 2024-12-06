@@ -29,5 +29,4 @@ public class Lesson {
     private int lessonOrder;
 
     private String videoUrl;
-    private String documentUrl;
 }
