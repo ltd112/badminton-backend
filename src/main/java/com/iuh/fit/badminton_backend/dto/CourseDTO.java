@@ -1,10 +1,8 @@
 package com.iuh.fit.badminton_backend.dto;
 
-import com.iuh.fit.badminton_backend.models.enums.CourseStatus;
 import com.iuh.fit.badminton_backend.models.enums.Level;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Data

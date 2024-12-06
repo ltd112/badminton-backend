@@ -44,29 +44,6 @@ public class CourseService {
         return course.map(c -> genericMapper.convertToDto(c, CourseDTO.class));
     }
 
-    /**
-     * Tìm khóa học theo trạng thái
-     * @param status trạng thái khóa học
-     * @return danh sách khóa học
-     */
-    public List<CourseDTO> getCoursesByStatus(String status) {
-        List<Course> courses = courseRepository.findByStatus(status);
-        return courses.stream()
-                .map(course -> genericMapper.convertToDto(course, CourseDTO.class))
-                .toList();
-    }
-
-    /**
-     * Tìm khóa học theo ngày bắt đầu
-     * @param startDate ngày bắt đầu khóa học
-     * @return danh sách khóa học
-     */
-    public List<CourseDTO> getCoursesByStartDate(LocalDate startDate) {
-        List<Course> courses = courseRepository.findByStartDate(startDate);
-        return courses.stream()
-                .map(course -> genericMapper.convertToDto(course, CourseDTO.class))
-                .toList();
-    }
 
     /**
      * Tìm tất cả khóa học theo cấp độ
@@ -75,18 +52,6 @@ public class CourseService {
      */
     public List<CourseDTO> getCoursesByLevel(String level) {
         List<Course> courses = courseRepository.findByLevel(level);
-        return courses.stream()
-                .map(course -> genericMapper.convertToDto(course, CourseDTO.class))
-                .toList();
-    }
-
-    /**
-     * Tìm tất cả khóa học của một huấn luyện viên
-     * @param coachId id của huấn luyện viên
-     * @return danh sách khóa học của huấn luyện viên
-     */
-    public List<CourseDTO> getCoursesByCoach(Long coachId) {
-        List<Course> courses = courseRepository.findByCoachId(coachId);
         return courses.stream()
                 .map(course -> genericMapper.convertToDto(course, CourseDTO.class))
                 .toList();

@@ -47,35 +47,6 @@ public class CourseController {
     }
 
     /**
-     * Lấy khóa học theo trạng thái
-     * @param status trạng thái khóa học
-     * @return ApiResponse chứa danh sách khóa học
-     */
-    @GetMapping("/status/{status}")
-    public ApiResponse<List<CourseDTO>> getCoursesByStatus(@PathVariable String status) {
-        List<CourseDTO> courseDTOs = courseService.getCoursesByStatus(status);
-        if (courseDTOs.isEmpty()) {
-            return ApiResponse.error("Không tìm thấy khóa học với trạng thái " + status, null);
-        }
-        return ApiResponse.success("Lấy danh sách khóa học theo trạng thái thành công", courseDTOs);
-    }
-
-    /**
-     * Lấy khóa học theo ngày bắt đầu
-     * @param startDate ngày bắt đầu khóa học
-     * @return ApiResponse chứa danh sách khóa học
-     */
-    @GetMapping("/start-date/{startDate}")
-    public ApiResponse<List<CourseDTO>> getCoursesByStartDate(@PathVariable String startDate) {
-        LocalDate parsedStartDate = LocalDate.parse(startDate);
-        List<CourseDTO> courseDTOs = courseService.getCoursesByStartDate(parsedStartDate);
-        if (courseDTOs.isEmpty()) {
-            return ApiResponse.error("Không tìm thấy khóa học bắt đầu vào ngày " + startDate, null);
-        }
-        return ApiResponse.success("Lấy danh sách khóa học theo ngày bắt đầu thành công", courseDTOs);
-    }
-
-    /**
      * Lấy khóa học theo cấp độ
      * @param level cấp độ khóa học
      * @return ApiResponse chứa danh sách khóa học
@@ -89,19 +60,6 @@ public class CourseController {
         return ApiResponse.success("Lấy danh sách khóa học theo cấp độ thành công", courseDTOs);
     }
 
-    /**
-     * Lấy tất cả khóa học của một huấn luyện viên
-     * @param coachId ID của huấn luyện viên
-     * @return ApiResponse chứa danh sách khóa học của huấn luyện viên
-     */
-    @GetMapping("/coach/{coachId}")
-    public ApiResponse<List<CourseDTO>> getCoursesByCoach(@PathVariable Long coachId) {
-        List<CourseDTO> courseDTOs = courseService.getCoursesByCoach(coachId);
-        if (courseDTOs.isEmpty()) {
-            return ApiResponse.error("Không tìm thấy khóa học của huấn luyện viên với ID " + coachId, null);
-        }
-        return ApiResponse.success("Lấy danh sách khóa học của huấn luyện viên thành công", courseDTOs);
-    }
 
     /**
      * Lưu hoặc cập nhật khóa học
