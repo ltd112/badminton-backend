@@ -1,5 +1,6 @@
 package com.iuh.fit.badminton_backend.repository;
 
+import com.iuh.fit.badminton_backend.models.Course;
 import com.iuh.fit.badminton_backend.models.Feedback;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
