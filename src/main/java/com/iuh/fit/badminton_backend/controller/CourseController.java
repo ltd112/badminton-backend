@@ -25,7 +25,7 @@ public class CourseController {
      * Lấy tất cả khóa học
      * @return ApiResponse chứa danh sách khóa học
      */
-    @GetMapping
+    @GetMapping("/all")
     public ApiResponse<List<CourseDTO>> getAllCourses() {
         List<CourseDTO> courseDTOs = courseService.getAllCourses();
         if (courseDTOs.isEmpty()) {

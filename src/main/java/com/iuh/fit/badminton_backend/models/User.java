@@ -26,7 +26,7 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String role; // ADMIN, STUDENT, COACH
+    private String role; // ADMIN, STUDENT
 
     @Column(nullable = false)
     private String fullName;

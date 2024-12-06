@@ -25,13 +25,13 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserDTO>> register(@RequestBody UserDTO userDTO) {
         // Kiểm tra username đã tồn tại
         if (userService.getUserByUsername(userDTO.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest()
+            return ResponseEntity.status(201)
                     .body(ApiResponse.error("Tên đăng nhập đã tồn tại", null));
-        }
+    }
 
         // Kiểm tra email đã tồn tại
         if (userService.getUserByEmail(userDTO.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest()
+            return ResponseEntity.status(201)
                     .body(ApiResponse.error("Email đã tồn tại", null));
         }
 
@@ -46,14 +46,14 @@ public class AuthController {
         // Kiểm tra username
         Optional<UserDTO> userOptional = userService.getUserByUsername(userDTO.getUsername());
         if (userOptional.isEmpty()) {
-            return ResponseEntity.status(404)
+            return ResponseEntity.status(201)
                     .body(ApiResponse.error("Tên đăng nhập không tồn tại", null));
         }
 
         // Kiểm tra mật khẩu
         UserDTO user = userOptional.get();
         if (!userDTO.getPassword().equals(user.getPassword())) {
-            return ResponseEntity.status(400)
+            return ResponseEntity.status(202)
                     .body(ApiResponse.error("Mật khẩu không chính xác", null));
         }
 
@@ -64,7 +64,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody UserDTO userDTO) {
         Optional<UserDTO> userOptional = userService.getUserByEmail(userDTO.getEmail());
         if (userOptional.isEmpty()) {
-            return ResponseEntity.status(404)
+            return ResponseEntity.status(201)
                     .body(ApiResponse.error("Email không tồn tại", null));
         }
 
@@ -83,7 +83,29 @@ public class AuthController {
         return userDTO.map(dto -> ResponseEntity.ok(ApiResponse.success("Tìm thấy người dùng", dto))).orElseGet(() -> ResponseEntity.status(404)
                 .body(ApiResponse.error("Người dùng không tồn tại", null)));
     }
-
+    /**
+     * Get a user by username.
+     * @return ApiResponse containing user data.
+     */
+    @GetMapping("/users/username/{username}")
+    public ResponseEntity<ApiResponse<UserDTO>> getUserByUsername(@PathVariable String username) {
+        Optional<UserDTO> userDTO = userService.getUserByUsername(username);
+        return userDTO.map(dto -> ResponseEntity.ok(ApiResponse.success("Tìm thấy người dùng", dto))).orElseGet(() -> ResponseEntity.status(404)
+                .body(ApiResponse.error("Người dùng không tồn tại", null)));
+    }
+    /**
+     * Get a user by full name.
+     * @return ApiResponse containing user data.
+     */
+    @GetMapping("/users/search")
+    public ResponseEntity<ApiResponse<List<UserDTO>>> getUsersByName(@RequestParam String name) {
+        List<UserDTO> users = userService.getUsersByName(name);
+        if (users.isEmpty()) {
+            return ResponseEntity.status(201)
+                    .body(ApiResponse.error("Không tìm thấy người dùng với tên: " + name, null));
+        }
+        return ResponseEntity.ok(ApiResponse.success("Tìm thấy người dùng", users));
+    }
     /**
      * Get all users.
      * @return ApiResponse containing the list of all users.
@@ -106,7 +128,7 @@ public class AuthController {
         if (updatedUser != null) {
             return ResponseEntity.ok(ApiResponse.success("Cập nhật người dùng thành công", updatedUser));
         } else {
-            return ResponseEntity.status(404)
+            return ResponseEntity.status(201)
                     .body(ApiResponse.error("Người dùng không tồn tại", null));
         }
     }
@@ -123,8 +145,26 @@ public class AuthController {
             userService.deleteUser(id);
             return ResponseEntity.ok(ApiResponse.success("Xóa người dùng thành công", null));
         } else {
-            return ResponseEntity.status(404)
+            return ResponseEntity.status(201)
                     .body(ApiResponse.error("Người dùng không tồn tại", null));
         }
+    }
+    /**
+     * Change password of a user by username.
+     * @param username the username of the user.
+     * @return ApiResponse with status of delete operation.
+     */
+    @PutMapping("/users/change-password/{username}")
+    public ResponseEntity<ApiResponse<String>> changePassword(@PathVariable String username, @RequestBody UserDTO userDTO) {
+        Optional<UserDTO> userOptional = userService.getUserByUsername(username);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(201)
+                    .body(ApiResponse.error("Tên đăng nhập không tồn tại", null));
+        }
+
+        UserDTO user = userOptional.get();
+        user.setPassword(userDTO.getPassword());
+        userService.updateUser(user.getId(), user);
+        return ResponseEntity.ok(ApiResponse.success("Đổi mật khẩu thành công", null));
     }
 }

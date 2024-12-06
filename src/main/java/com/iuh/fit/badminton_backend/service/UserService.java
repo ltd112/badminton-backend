@@ -21,7 +21,19 @@ public class UserService {
         this.userRepository = userRepository;
         this.genericMapper = genericMapper;
     }
-
+    /**
+     * Find a user by their full name or part of name.
+     * @param name the name of the user.
+     * @return an Optional containing the UserDTO if found.
+     */
+    public List<UserDTO> getUsersByName(String name) {
+        List<User> users = userRepository.findAll();
+        String lowerCaseName = name.toLowerCase();
+        return users.stream()
+                .filter(user -> user.getFullName().toLowerCase().contains(lowerCaseName))
+                .map(user -> genericMapper.convertToDto(user, UserDTO.class))
+                .toList();
+    }
     /**
      * Find a user by their username.
      * @param username the username of the user.
@@ -80,13 +92,18 @@ public class UserService {
      */
 
     public UserDTO updateUser(Long id, UserDTO userDTO) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()) {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
             return null;
         }
-        User updatedUser = genericMapper.convertToEntity(userDTO, User.class);
-        updatedUser.setId(id);
-        User savedUser = userRepository.save(updatedUser);
+        User user = userOptional.get();
+        user.setUsername(userDTO.getUsername());
+        user.setRole(userDTO.getRole());
+        user.setFullName(userDTO.getFullName());
+        user.setEmail(userDTO.getEmail());
+        user.setPhoneNumber(userDTO.getPhoneNumber());
+        user.setDateOfBirth(userDTO.getDateOfBirth());
+        User savedUser = userRepository.save(user);
         return genericMapper.convertToDto(savedUser, UserDTO.class);
     }
 
