@@ -97,4 +97,14 @@ public class CourseController {
         }
         return ApiResponse.success("Lấy danh sách khóa học có rating cao nhất trong khoảng thời gian thành công", courseDTOs);
     }
+
+    @GetMapping("/highest-rated-courses-all")
+    public ApiResponse<List<CourseDTO>> findCoursesWithHighestRatings() {
+        List<CourseDTO> courseDTOs = courseService.getCoursesWithHighestRatings();
+        if (courseDTOs.isEmpty()) {
+            return ApiResponse.error("Không tìm thấy khóa học nào", null);
+        }
+        return ApiResponse.success("Lấy danh sách khóa học có rating cao nhất thành công", courseDTOs);
+    }
+
 }

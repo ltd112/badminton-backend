@@ -33,4 +33,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "GROUP BY c.id " +
             "ORDER BY AVG(f.rating) DESC")
     List<Course> findCoursesWithHighestRatingsInPeriod(LocalDate startDate, LocalDate endDate);
+
+    @Query("SELECT c FROM Course c " +
+            "JOIN Feedback f ON c.id = f.course.id " +
+            "GROUP BY c.id " +
+            "ORDER BY AVG(f.rating) DESC")
+    List<Course> findCoursesWithHighestRatings();
 }

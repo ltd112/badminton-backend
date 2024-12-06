@@ -90,4 +90,10 @@ public class CourseService {
                 .map(course -> genericMapper.convertToDto(course, CourseDTO.class))
                 .toList();
     }
+
+    public List<CourseDTO> getCoursesWithHighestRatings() {
+        return courseRepository.findCoursesWithHighestRatings().stream()
+                .map(course -> genericMapper.convertToDto(course, CourseDTO.class))
+                .toList();
+    }
 }
