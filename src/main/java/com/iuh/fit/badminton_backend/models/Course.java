@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name = "courses")
 @Getter
@@ -37,7 +39,8 @@ public class Course {
 
     @Column(nullable = false)
     private Double fee;
-
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Lesson> lessons;
 //    @ManyToOne
 //    @JoinColumn(name = "coach_id", nullable = false)
 //    private User coach;

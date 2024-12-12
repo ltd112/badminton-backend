@@ -12,6 +12,5 @@ public class LessonDTO {
     private String content;
     private int lessonOrder;
     private String videoUrl; // URL video from S3
-    private String documentUrl;
-    private String img; // Image URL from S3
+    private String imgUrl; // Image URL from S3
 }

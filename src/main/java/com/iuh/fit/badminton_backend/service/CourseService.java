@@ -3,9 +3,7 @@ package com.iuh.fit.badminton_backend.service;
 import com.iuh.fit.badminton_backend.mapper.GenericMapper;
 import com.iuh.fit.badminton_backend.models.Course;
 import com.iuh.fit.badminton_backend.dto.CourseDTO;
-import com.iuh.fit.badminton_backend.models.Feedback;
 import com.iuh.fit.badminton_backend.repository.CourseRepository;
-import com.iuh.fit.badminton_backend.repository.FeedbackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +16,11 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final GenericMapper genericMapper;
-    private final FeedbackRepository feedbackRepository;
 
     @Autowired
-    public CourseService(CourseRepository courseRepository, GenericMapper genericMapper, FeedbackRepository feedbackRepository) {
+    public CourseService(CourseRepository courseRepository, GenericMapper genericMapper) {
         this.courseRepository = courseRepository;
         this.genericMapper = genericMapper;
-        this.feedbackRepository = feedbackRepository;
     }
 
     /**
@@ -61,6 +57,7 @@ public class CourseService {
                 .toList();
     }
 
+
     /**
      * Lưu một khóa học mới hoặc cập nhật khóa học nếu đã tồn tại
      * @param courseDto đối tượng DTO khóa học
@@ -80,10 +77,6 @@ public class CourseService {
         courseRepository.deleteById(id);
     }
 
-    //tìm tất cả feedback khi biết id và feedbackDate
-    // Tìm tất cả khóa học có feedback id
-
-    //getCoursesWithHighestRatings
     public List<CourseDTO> getCoursesWithHighestRatingsInPeriod(LocalDate startDate, LocalDate endDate) {
         List<Course> courses = courseRepository.findCoursesWithHighestRatingsInPeriod(startDate, endDate);
         return courses.stream()
@@ -95,5 +88,15 @@ public class CourseService {
         return courseRepository.findCoursesWithHighestRatings().stream()
                 .map(course -> genericMapper.convertToDto(course, CourseDTO.class))
                 .toList();
+    }
+
+    /**
+     * Tìm khóa học theo ID
+     * @param id ID của khóa học
+     * @return khóa học nếu tồn tại, null nếu không
+     */
+    public Optional<CourseDTO> getCourseById(Long id) {
+        Optional<Course> course = courseRepository.findById(id);
+        return course.map(c -> genericMapper.convertToDto(c, CourseDTO.class));
     }
 }

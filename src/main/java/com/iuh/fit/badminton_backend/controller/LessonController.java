@@ -3,9 +3,13 @@ package com.iuh.fit.badminton_backend.controller;
 import com.iuh.fit.badminton_backend.dto.ApiResponse;
 import com.iuh.fit.badminton_backend.dto.LessonDTO;
 import com.iuh.fit.badminton_backend.service.LessonService;
+import com.iuh.fit.badminton_backend.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,17 +18,14 @@ import java.util.Optional;
 public class LessonController {
 
     private final LessonService lessonService;
+    private final S3Service s3Service;
 
     @Autowired
-    public LessonController(LessonService lessonService) {
+    public LessonController(LessonService lessonService, S3Service s3Service) {
         this.lessonService = lessonService;
+        this.s3Service = s3Service;
     }
-
-    /**
-     * Lấy tất cả bài học của một khóa học theo ID khóa học
-     * @param courseId ID của khóa học
-     * @return ApiResponse chứa danh sách bài học
-     */
+    //get all lessons
     @GetMapping("/course/{courseId}")
     public ApiResponse<List<LessonDTO>> getLessonsByCourseId(@PathVariable Long courseId) {
         List<LessonDTO> lessonDTOs = lessonService.getLessonsByCourseId(courseId);
@@ -33,13 +34,7 @@ public class LessonController {
         }
         return ApiResponse.success("Lấy danh sách bài học thành công", lessonDTOs);
     }
-
-    /**
-     * Lấy bài học theo khóa học và thứ tự bài học
-     * @param courseId ID của khóa học
-     * @param lessonOrder thứ tự bài học trong khóa học
-     * @return ApiResponse chứa danh sách bài học
-     */
+    //get lesson by course id and lesson order
     @GetMapping("/course/{courseId}/order/{lessonOrder}")
     public ApiResponse<List<LessonDTO>> getLessonsByCourseIdAndLessonOrder(
             @PathVariable Long courseId,
@@ -50,34 +45,51 @@ public class LessonController {
         }
         return ApiResponse.success("Lấy danh sách bài học theo thứ tự thành công", lessonDTOs);
     }
+    //upload lesson
+    @PostMapping("/upload")
+    public ApiResponse<LessonDTO> uploadLesson(@RequestParam("courseId") Long courseId,
+                                               @RequestParam("title") String title,
+                                               @RequestParam("content") String content,
+                                               @RequestParam("lessonOrder") int lessonOrder,
+                                               @RequestParam("videoFile") MultipartFile videoFile,
+                                               @RequestParam("imageFile") MultipartFile imageFile) {
+        try {
+            File video = Files.createTempFile("video", videoFile.getOriginalFilename()).toFile();
+            videoFile.transferTo(video);
+            String videoUrl = s3Service.uploadFile(video, "videos/" + videoFile.getOriginalFilename());
 
-    /**
-     * Lưu hoặc cập nhật bài học
-     * @param lessonDTO đối tượng DTO của bài học
-     * @return ApiResponse chứa bài học đã lưu hoặc cập nhật
-     */
-    @PostMapping
-    public ApiResponse<LessonDTO> saveOrUpdateLesson(@RequestBody LessonDTO lessonDTO) {
-        LessonDTO savedLessonDTO = lessonService.saveOrUpdateLesson(lessonDTO);
-        return ApiResponse.success("Bài học đã được lưu hoặc cập nhật thành công", savedLessonDTO);
+            File image = Files.createTempFile("image", imageFile.getOriginalFilename()).toFile();
+            imageFile.transferTo(image);
+            String imageUrl = s3Service.uploadFile(image, "images/" + imageFile.getOriginalFilename());
+
+            LessonDTO lessonDTO = new LessonDTO();
+            lessonDTO.setCourseId(courseId);
+            lessonDTO.setTitle(title);
+            lessonDTO.setContent(content);
+            lessonDTO.setLessonOrder(lessonOrder);
+            lessonDTO.setVideoUrl(videoUrl);
+            lessonDTO.setImgUrl(imageUrl);
+
+            LessonDTO savedLesson = lessonService.saveOrUpdateLesson(lessonDTO);
+            return ApiResponse.success("Lesson uploaded successfully", savedLesson);
+        } catch (Exception e) {
+            return ApiResponse.error("Error uploading lesson", null);
+        }
     }
 
-    /**
-     * Xóa bài học theo ID
-     * @param id ID của bài học
-     * @return ApiResponse thông báo kết quả
-     */
+    //update lesson(title, content, video, image)
+    @PutMapping("/update")
+    public ApiResponse<LessonDTO> updateLesson(@RequestBody LessonDTO lessonDTO) {
+        LessonDTO updatedLesson = lessonService.saveOrUpdateLesson(lessonDTO);
+        return ApiResponse.success("Bài học đã được cập nhật thành công", updatedLesson);
+    }
+    //delete lesson
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteLesson(@PathVariable Long id) {
         lessonService.deleteLesson(id);
         return ApiResponse.success("Bài học đã được xóa thành công", null);
     }
-
-    /**
-     * Tìm bài học theo ID
-     * @param id ID của bài học
-     * @return ApiResponse chứa bài học tìm được
-     */
+    //get lesson by id
     @GetMapping("/{id}")
     public ApiResponse<LessonDTO> getLessonById(@PathVariable Long id) {
         Optional<LessonDTO> lessonDTO = lessonService.getLessonById(id);

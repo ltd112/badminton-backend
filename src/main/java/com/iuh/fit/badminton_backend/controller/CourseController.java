@@ -59,7 +59,17 @@ public class CourseController {
         }
         return ApiResponse.success("Lấy danh sách khóa học theo cấp độ thành công", courseDTOs);
     }
-
+    /**
+     * Lấy khóa học theo ID
+     * @param id ID của khóa học
+     * @return ApiResponse chứa khóa học tìm được
+     */
+    @GetMapping("/{id}")
+    public ApiResponse<CourseDTO> getCourseById(@PathVariable Long id) {
+        Optional<CourseDTO> courseDTO = courseService.getCourseById(id);
+        return courseDTO.map(dto -> ApiResponse.success("Lấy khóa học thành công", dto))
+                .orElseGet(() -> ApiResponse.error("Không tìm thấy khóa học với ID " + id, null));
+    }
 
     /**
      * Lưu hoặc cập nhật khóa học
@@ -79,7 +89,14 @@ public class CourseController {
      */
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteCourse(@PathVariable Long id) {
+        //kiểm tra xem khóa học có tồn tại không
+        Optional<CourseDTO> courseDTO = courseService.getCourseById(id);
+        //return error nếu không tồn tại
+        if (courseDTO.isEmpty()) {
+            return ApiResponse.error("Không tìm thấy khóa học với ID " + id, null);
+        }
         courseService.deleteCourse(id);
+
         return ApiResponse.success("Khóa học đã được xóa thành công", null);
     }
 

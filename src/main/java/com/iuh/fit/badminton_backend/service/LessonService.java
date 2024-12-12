@@ -1,8 +1,8 @@
 package com.iuh.fit.badminton_backend.service;
 
+import com.iuh.fit.badminton_backend.dto.LessonDTO;
 import com.iuh.fit.badminton_backend.mapper.GenericMapper;
 import com.iuh.fit.badminton_backend.models.Lesson;
-import com.iuh.fit.badminton_backend.dto.LessonDTO;
 import com.iuh.fit.badminton_backend.repository.CourseRepository;
 import com.iuh.fit.badminton_backend.repository.LessonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +43,7 @@ public class LessonService {
     }
 
     public LessonDTO saveOrUpdateLesson(LessonDTO lessonDTO) {
-        Assert.notNull(lessonDTO.getCourseId(), "Course ID must not be null");
-        courseRepository.findById(lessonDTO.getCourseId())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khóa học với ID " + lessonDTO.getCourseId()));
+        Assert.notNull(lessonDTO, "LessonDTO must not be null");
         Lesson lesson = genericMapper.convertToEntity(lessonDTO, Lesson.class);
         Lesson savedLesson = lessonRepository.save(lesson);
         return genericMapper.convertToDto(savedLesson, LessonDTO.class);
