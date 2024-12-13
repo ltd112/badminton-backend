@@ -147,6 +147,21 @@ public class FeedbackService {
         // if feedback does not exist, create new feedback using fun addFeedback
         return addFeedback(feedbackDTO);
     }
+    //update rating and content
+    public FeedbackDTO updateFeedbackRatingAndContent(FeedbackDTO feedbackDTO) {
+        // check if feedback already exists
+        Optional<Feedback> existingFeedback = feedbackRepository.findById(feedbackDTO.getId());
+        // if feedback already exists, update feedback
+        if (existingFeedback.isPresent()) {
+            Feedback feedback = existingFeedback.get();
+            feedback.setRating(feedbackDTO.getRating());
+            feedback.setContent(feedbackDTO.getContent());
+            Feedback updatedFeedback = feedbackRepository.save(feedback);
+            return genericMapper.convertToDto(updatedFeedback, FeedbackDTO.class);
+        }
+        // if feedback does not exist, create new feedback using fun addFeedback
+        return addFeedback(feedbackDTO);
+    }
 
     /**
      * Xóa một phản hồi theo ID
@@ -155,9 +170,9 @@ public class FeedbackService {
     public void deleteFeedback(Long id) {
         feedbackRepository.deleteById(id);
     }
-    //get feedback by studentId and courseId
-    public Optional<Feedback> getFeedbacksByCourseIdandStudentId(Long studentId, Long courseId) {
-        return feedbackRepository.findByStudentIdAndCourseId(studentId, courseId);
+
+    public Optional<FeedbackDTO> getFeedbacksByCourseIdandStudentId(Long studentId, Long courseId) {
+        return feedbackRepository.findByStudentIdAndCourseId(studentId, courseId).map(f -> genericMapper.convertToDto(f, FeedbackDTO.class));
     }
 }
 

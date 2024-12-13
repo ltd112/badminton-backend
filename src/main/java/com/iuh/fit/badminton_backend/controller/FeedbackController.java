@@ -85,7 +85,7 @@ public class FeedbackController {
         // Tạo người dùng mới
         FeedbackDTO saveFb = feedbackService.addFeedback(feedbackDTO);
         return ResponseEntity.status(200)
-                .body(ApiResponse.success("Đăng ký thành công", saveFb));
+                .body(ApiResponse.success("Thêm feedback thành công", saveFb));
     }
 
     /**
@@ -109,7 +109,11 @@ public class FeedbackController {
         feedbackService.deleteFeedback(id);
         return ApiResponse.success("Phản hồi đã được xóa.", null);
     }
-
+    @PatchMapping("/{id}")
+    public ApiResponse<FeedbackDTO> updateRating(@PathVariable Long id, @RequestBody FeedbackDTO feedbackDTO) {
+        FeedbackDTO updatedFeedback = feedbackService.updateFeedbackRatingAndContent(feedbackDTO);
+        return ApiResponse.success("Đánh giá đã được cập nhật.", updatedFeedback);
+    }
     /**
      * Lấy phản hồi theo ID.
      * @param id ID của phản hồi.
