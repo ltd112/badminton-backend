@@ -29,5 +29,4 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
 
     // tìm tất cả khóa học có rating và feedbackDate cụ thể
     List<Feedback> findByRatingAndFeedbackDate(int rating, LocalDate feedbackDate);
-
 }

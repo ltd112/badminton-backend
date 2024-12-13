@@ -140,8 +140,6 @@ public class FeedbackService {
         // if feedback already exists, update feedback
         if (existingFeedback.isPresent()) {
             //check course and student already exists
-
-
             Feedback feedback = genericMapper.convertToEntity(feedbackDTO, Feedback.class);
             Feedback updatedFeedback = feedbackRepository.save(feedback);
             return genericMapper.convertToDto(updatedFeedback, FeedbackDTO.class);
@@ -156,6 +154,10 @@ public class FeedbackService {
      */
     public void deleteFeedback(Long id) {
         feedbackRepository.deleteById(id);
+    }
+    //get feedback by studentId and courseId
+    public Optional<Feedback> getFeedbacksByCourseIdandStudentId(Long studentId, Long courseId) {
+        return feedbackRepository.findByStudentIdAndCourseId(studentId, courseId);
     }
 }
 

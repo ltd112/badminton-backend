@@ -2,8 +2,10 @@ package com.iuh.fit.badminton_backend.controller;
 
 import com.iuh.fit.badminton_backend.dto.ApiResponse;
 import com.iuh.fit.badminton_backend.dto.FeedbackDTO;
+import com.iuh.fit.badminton_backend.dto.UserDTO;
 import com.iuh.fit.badminton_backend.service.FeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -73,9 +75,17 @@ public class FeedbackController {
      * @return phản hồi đã được lưu hoặc cập nhật.
      */
     @PostMapping
-    public ApiResponse<FeedbackDTO> addFeedback(@RequestBody FeedbackDTO feedbackDTO) {
-        FeedbackDTO savedFeedback = feedbackService.addFeedback(feedbackDTO);
-        return ApiResponse.success("Phản hồi đã được lưu.", savedFeedback);
+    public ResponseEntity<ApiResponse<FeedbackDTO>> addFeedback(@RequestBody FeedbackDTO feedbackDTO) {
+        // Kiểm tra username đã tồn tại
+        if (feedbackService.getFeedbacksByCourseIdandStudentId(feedbackDTO.getStudentId(), feedbackDTO.getCourseId()).isPresent()) {
+            return ResponseEntity.status(201)
+                    .body(ApiResponse.error("Bạn đã đánh giá rồi", null));
+        }
+
+        // Tạo người dùng mới
+        FeedbackDTO saveFb = feedbackService.addFeedback(feedbackDTO);
+        return ResponseEntity.status(200)
+                .body(ApiResponse.success("Đăng ký thành công", saveFb));
     }
 
     /**

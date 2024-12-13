@@ -27,7 +27,7 @@ public class AuthController {
         if (userService.getUserByUsername(userDTO.getUsername()).isPresent()) {
             return ResponseEntity.status(201)
                     .body(ApiResponse.error("Tên đăng nhập đã tồn tại", null));
-    }
+        }
 
         // Kiểm tra email đã tồn tại
         if (userService.getUserByEmail(userDTO.getEmail()).isPresent()) {
