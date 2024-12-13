@@ -25,6 +25,9 @@ public class UserDTO {
 
     private String phoneNumber; // Số điện thoại
 
+    private String otp; // Mã OTP
+    private boolean verified; // Đã xác thực hay chưa
+
     @JsonDeserialize(using = CustomLocalDateDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate dateOfBirth; // Ngày sinh
