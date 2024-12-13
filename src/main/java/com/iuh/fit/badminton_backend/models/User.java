@@ -36,4 +36,7 @@ public class User {
 
     private String phoneNumber;
     private LocalDate dateOfBirth;
+
+    private String otp;
+    private boolean verified;
 }

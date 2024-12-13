@@ -2,7 +2,9 @@ package com.iuh.fit.badminton_backend.controller;
 
 import com.iuh.fit.badminton_backend.dto.ApiResponse;
 import com.iuh.fit.badminton_backend.dto.UserDTO;
+import com.iuh.fit.badminton_backend.service.EmailService;
 import com.iuh.fit.badminton_backend.service.UserService;
+import com.iuh.fit.badminton_backend.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,30 +17,53 @@ import java.util.Optional;
 public class AuthController {
 
     private final UserService userService;
+    private final EmailService emailService;
+    private final Utils utils;
 
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, EmailService emailService) {
         this.userService = userService;
+        this.emailService = emailService;
+        this.utils = new Utils();
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<UserDTO>> register(@RequestBody UserDTO userDTO) {
-        // Kiểm tra username đã tồn tại
+    public ResponseEntity<ApiResponse<String>> register(@RequestBody UserDTO userDTO) {
         if (userService.getUserByUsername(userDTO.getUsername()).isPresent()) {
             return ResponseEntity.status(201)
                     .body(ApiResponse.error("Tên đăng nhập đã tồn tại", null));
-    }
+        }
 
-        // Kiểm tra email đã tồn tại
         if (userService.getUserByEmail(userDTO.getEmail()).isPresent()) {
             return ResponseEntity.status(201)
                     .body(ApiResponse.error("Email đã tồn tại", null));
         }
 
-        // Tạo người dùng mới
+        String otp = utils.generateOtp();
+        emailService.sendSimpleMail(userDTO.getEmail(), "Xác thực OTP", "Mã OTP của bạn là: " + otp);
+
+        userDTO.setOtp(otp);
         UserDTO savedUser = userService.addUsers(userDTO);
+
         return ResponseEntity.status(200)
-                .body(ApiResponse.success("Đăng ký thành công", savedUser));
+                .body(ApiResponse.success("OTP đã được gửi đến email của bạn", null));
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<ApiResponse<UserDTO>> verifyOtp(@RequestBody UserDTO userDTO) {
+        Optional<UserDTO> userOptional = userService.getUserByEmail(userDTO.getEmail());
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(404).body(ApiResponse.error("Người dùng không tồn tại", null));
+        }
+
+        UserDTO user = userOptional.get();
+        if (userDTO.getOtp().equals(user.getOtp())) {
+            user.setVerified(true);
+            UserDTO savedUser = userService.addUsers(user);
+            return ResponseEntity.ok(ApiResponse.success("OTP xác thực thành công và người dùng đã được tạo", savedUser));
+        } else {
+            return ResponseEntity.status(400).body(ApiResponse.error("OTP không hợp lệ", null));
+        }
     }
 
     @PostMapping("/login")
@@ -74,6 +99,7 @@ public class AuthController {
 
     /**
      * Get a user by ID.
+     *
      * @param id the ID of the user.
      * @return ApiResponse containing user data.
      */
@@ -83,8 +109,10 @@ public class AuthController {
         return userDTO.map(dto -> ResponseEntity.ok(ApiResponse.success("Tìm thấy người dùng", dto))).orElseGet(() -> ResponseEntity.status(404)
                 .body(ApiResponse.error("Người dùng không tồn tại", null)));
     }
+
     /**
      * Get a user by username.
+     *
      * @return ApiResponse containing user data.
      */
     @GetMapping("/users/username/{username}")
@@ -93,8 +121,10 @@ public class AuthController {
         return userDTO.map(dto -> ResponseEntity.ok(ApiResponse.success("Tìm thấy người dùng", dto))).orElseGet(() -> ResponseEntity.status(404)
                 .body(ApiResponse.error("Người dùng không tồn tại", null)));
     }
+
     /**
      * Get a user by full name.
+     *
      * @return ApiResponse containing user data.
      */
     @GetMapping("/users/search")
@@ -106,8 +136,10 @@ public class AuthController {
         }
         return ResponseEntity.ok(ApiResponse.success("Tìm thấy người dùng", users));
     }
+
     /**
      * Get all users.
+     *
      * @return ApiResponse containing the list of all users.
      */
     @GetMapping("/users")
@@ -118,7 +150,8 @@ public class AuthController {
 
     /**
      * Update a user by ID.
-     * @param id the ID of the user.
+     *
+     * @param id      the ID of the user.
      * @param userDTO the updated user data.
      * @return ApiResponse containing the updated user data.
      */
@@ -135,6 +168,7 @@ public class AuthController {
 
     /**
      * Delete a user by ID.
+     *
      * @param id the ID of the user.
      * @return ApiResponse with status of delete operation.
      */
@@ -149,8 +183,10 @@ public class AuthController {
                     .body(ApiResponse.error("Người dùng không tồn tại", null));
         }
     }
+
     /**
      * Change password of a user by username.
+     *
      * @param username the username of the user.
      * @return ApiResponse with status of delete operation.
      */
