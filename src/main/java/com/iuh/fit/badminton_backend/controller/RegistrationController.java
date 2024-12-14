@@ -1,5 +1,6 @@
 package com.iuh.fit.badminton_backend.controller;
 
+import com.iuh.fit.badminton_backend.dto.ApiResponse;
 import com.iuh.fit.badminton_backend.dto.RegistrationDTO;
 import com.iuh.fit.badminton_backend.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -31,9 +33,9 @@ public class RegistrationController {
     }
     // Get registrations by student ID and course ID
     @GetMapping("/student/{studentId}/course/{courseId}")
-    public ResponseEntity<List<RegistrationDTO>> getRegistrationsByStudentIdAndCourseId(@PathVariable Long studentId, @PathVariable Long courseId) {
-        List<RegistrationDTO> registrations = registrationService.getRegistrationsByStudentIdAndCourseId(studentId, courseId);
-        return new ResponseEntity<>(registrations, HttpStatus.OK);
+    public ResponseEntity<RegistrationDTO> getRegistrationsByStudentIdAndCourseId(@PathVariable Long studentId, @PathVariable Long courseId) {
+        RegistrationDTO registration = registrationService.getRegistrationsByStudentIdAndCourseId(studentId, courseId);
+        return new ResponseEntity<>(registration, HttpStatus.OK);
     }
     // Get registrations by payment status
     @GetMapping("/payment-status/{paymentStatus}")
@@ -47,11 +49,18 @@ public class RegistrationController {
         List<RegistrationDTO> registrations = registrationService.getRegistrationsByCourseIdAndRegistrationDate(courseId, registrationDate);
         return new ResponseEntity<>(registrations, HttpStatus.OK);
     }
-    // Save or update registration
     @PostMapping
-    public ResponseEntity<RegistrationDTO> saveOrUpdateRegistration(@RequestBody RegistrationDTO registrationDTO) {
+    public ResponseEntity<ApiResponse<RegistrationDTO>> saveOrUpdateRegistration(@RequestBody RegistrationDTO registrationDTO) {
+        RegistrationDTO existingRegistrations = registrationService.getRegistrationsByStudentIdAndCourseId(registrationDTO.getStudentId(), registrationDTO.getCourseId());
+        if (existingRegistrations != null) {
+            System.out.println(registrationService.getRegistrationsByStudentIdAndCourseId(registrationDTO.getStudentId(), registrationDTO.getCourseId()));
+            return ResponseEntity.status(201)
+                    .body(ApiResponse.error("Khóa học đã được thanh toán trước đó", null));
+
+        }
         RegistrationDTO savedRegistration = registrationService.saveOrUpdateRegistration(registrationDTO);
-        return new ResponseEntity<>(savedRegistration, HttpStatus.CREATED);
+        return  ResponseEntity.status(200)
+                .body(ApiResponse.success("Thanh toán khóa học thành công", savedRegistration));
     }
     // Delete registration
     @DeleteMapping("/{id}")
@@ -65,5 +74,23 @@ public class RegistrationController {
         Optional<RegistrationDTO> registration = registrationService.getRegistrationById(id);
         return registration.map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    // Get total fee pay
+    @GetMapping("/total-fee-pay")
+    public ApiResponse<Double> getTotalFeePay() {
+        double totalFeePay = registrationService.getTotalFeePay();
+        return ApiResponse.success("Tổng phí đăng ký", totalFeePay);
+    }
+    // Get monthly revenue
+    @GetMapping("/monthly-revenue")
+    public ApiResponse<Double> getMonthlyRevenue(@RequestParam int year, @RequestParam int month) {
+        double monthlyRevenue = registrationService.getMonthlyRevenue(year, month);
+        return ApiResponse.success("Doanh thu hàng tháng", monthlyRevenue);
+    }
+    @GetMapping("/revenue-between-months")
+    public ApiResponse<Map<String, Double>> getRevenueBetweenMonths(@RequestParam int startYear, @RequestParam int startMonth, @RequestParam int endYear, @RequestParam int endMonth) {
+        Map<String, Double> revenue = registrationService.getRevenueBetweenMonths(startYear, startMonth, endYear, endMonth);
+        return ApiResponse.success("Doanh thu từ tháng " + startMonth + " đến tháng " + endMonth, revenue);
     }
 }

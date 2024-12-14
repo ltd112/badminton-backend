@@ -1,11 +1,14 @@
 package com.iuh.fit.badminton_backend.service;
 
+import com.iuh.fit.badminton_backend.dto.ApiResponse;
 import com.iuh.fit.badminton_backend.mapper.GenericMapper;
 import com.iuh.fit.badminton_backend.models.User;
 import com.iuh.fit.badminton_backend.dto.UserDTO;
 import com.iuh.fit.badminton_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 import java.util.Optional;
@@ -90,7 +93,6 @@ public class UserService {
      * @param userDTO the updated user DTO.
      * @return the updated user DTO.
      */
-
     public UserDTO updateUser(Long id, UserDTO userDTO) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
@@ -103,6 +105,7 @@ public class UserService {
         user.setEmail(userDTO.getEmail());
         user.setPhoneNumber(userDTO.getPhoneNumber());
         user.setDateOfBirth(userDTO.getDateOfBirth());
+        user.setVerified(userDTO.isVerified());
         User savedUser = userRepository.save(user);
         return genericMapper.convertToDto(savedUser, UserDTO.class);
     }
@@ -137,5 +140,9 @@ public class UserService {
     public Optional<UserDTO> getUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
         return user.map(u -> genericMapper.convertToDto(u, UserDTO.class));
+    }
+
+    public long countUsers() {
+        return userRepository.count();
     }
 }

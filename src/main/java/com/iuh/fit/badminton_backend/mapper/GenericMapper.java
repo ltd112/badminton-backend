@@ -24,6 +24,9 @@ public class GenericMapper {
      * @return đối tượng DTO đã ánh xạ
      */
     public <D, E> D convertToDto(E entity, Class<D> dtoClass) {
+        if (entity == null) {
+            return null; // Return null if the source entity is null
+        }
         return modelMapper.map(entity, dtoClass);
     }
 
@@ -37,6 +40,9 @@ public class GenericMapper {
      * @return đối tượng entity đã ánh xạ
      */
     public <D, E> E convertToEntity(D dto, Class<E> entityClass) {
+        if (dto == null) {
+            return null; // Return null if the source entity is null
+        }
         return modelMapper.map(dto, entityClass);
     }
 }

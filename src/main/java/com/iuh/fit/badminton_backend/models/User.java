@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -39,4 +40,7 @@ public class User {
 
     private String otp;
     private boolean verified;
+    @Column
+    private LocalDateTime otpGenerationTime;
+
 }

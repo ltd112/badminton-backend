@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -53,11 +56,9 @@ public class RegistrationService {
      * @param courseId ID of the course.
      * @return list of registration DTOs.
      */
-    public List<RegistrationDTO> getRegistrationsByStudentIdAndCourseId(Long studentId, Long courseId) {
-        List<Registration> registrations = registrationRepository.findByStudentIdAndCourseId(studentId, courseId);
-        return registrations.stream()
-                .map(registration -> genericMapper.convertToDto(registration, RegistrationDTO.class))
-                .toList();
+    public RegistrationDTO getRegistrationsByStudentIdAndCourseId(Long studentId, Long courseId) {
+        Registration registration = registrationRepository.findByStudentIdAndCourseId(studentId, courseId);
+        return genericMapper.convertToDto(registration, RegistrationDTO.class);
     }
 
     /**
@@ -112,5 +113,30 @@ public class RegistrationService {
     public Optional<RegistrationDTO> getRegistrationById(Long id) {
         Optional<Registration> registration = registrationRepository.findById(id);
         return registration.map(reg -> genericMapper.convertToDto(reg, RegistrationDTO.class));
+    }
+
+    public double getTotalFeePay() {
+        return registrationRepository.sumTotalFeePay();
+    }
+
+    public double getMonthlyRevenue(int year, int month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+        return registrationRepository.sumFeePaidBetweenDates(startDate, endDate);
+    }
+    public Map<String, Double> getRevenueBetweenMonths(int startYear, int startMonth, int endYear, int endMonth) {
+        Map<String, Double> monthlyRevenue = new LinkedHashMap<>();
+        YearMonth start = YearMonth.of(startYear, startMonth);
+        YearMonth end = YearMonth.of(endYear, endMonth);
+
+        for (YearMonth month = start; !month.isAfter(end); month = month.plusMonths(1)) {
+            LocalDate startDate = month.atDay(1);
+            LocalDate endDate = month.atEndOfMonth();
+            Double revenue = registrationRepository.sumFeePaidBetweenDates(startDate, endDate);
+            monthlyRevenue.put(month.toString(), revenue != null ? revenue : 0.0);
+        }
+
+        return monthlyRevenue;
     }
 }

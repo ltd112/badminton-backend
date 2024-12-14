@@ -6,6 +6,7 @@ import com.iuh.fit.badminton_backend.util.CustomLocalDateDeserializer;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -27,12 +28,12 @@ public class UserDTO {
 
     private String otp; // Mã OTP
     private boolean verified; // Đã xác thực hay chưa
+    private LocalDateTime otpGenerationTime; // Add this field
 
     @JsonDeserialize(using = CustomLocalDateDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate dateOfBirth; // Ngày sinh
 
-    // Danh sách học viên đã đăng ký (nếu là Học viên)
 
     // Getters and Setters
 }

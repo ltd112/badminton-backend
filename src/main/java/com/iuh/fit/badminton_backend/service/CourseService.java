@@ -99,4 +99,9 @@ public class CourseService {
         Optional<Course> course = courseRepository.findById(id);
         return course.map(c -> genericMapper.convertToDto(c, CourseDTO.class));
     }
+
+    public long countCourses() {
+        return courseRepository.count();
+    }
+
 }

@@ -11,11 +11,7 @@ public class RegistrationDTO {
 
     private Long studentId; // ID của học viên
 
-    private String studentFullName; // Tên đầy đủ của học viên
-
     private Long courseId; // ID của khóa học mà học viên đã đăng ký
-
-    private String courseName; // Tên khóa học mà học viên đã đăng ký
 
     private LocalDate registrationDate; // Ngày đăng ký khóa học
 

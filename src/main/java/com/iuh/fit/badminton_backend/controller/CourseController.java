@@ -123,5 +123,9 @@ public class CourseController {
         }
         return ApiResponse.success("Lấy danh sách khóa học có rating cao nhất thành công", courseDTOs);
     }
-
+    @GetMapping("/count")
+    public ApiResponse<Long> countCourses() {
+        long count = courseService.countCourses();
+        return ApiResponse.success("Số lượng khóa học", count);
+    }
 }

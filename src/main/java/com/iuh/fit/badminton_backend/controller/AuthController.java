@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,29 +45,54 @@ public class AuthController {
         emailService.sendSimpleMail(userDTO.getEmail(), "Xác thực OTP", "Mã OTP của bạn là: " + otp);
 
         userDTO.setOtp(otp);
+        userDTO.setOtpGenerationTime(LocalDateTime.now()); // Set the OTP generation time
         UserDTO savedUser = userService.addUsers(userDTO);
 
         return ResponseEntity.status(200)
                 .body(ApiResponse.success("OTP đã được gửi đến email của bạn", null));
     }
 
+    // src/main/java/com/iuh/fit/badminton_backend/controller/AuthController.java
     @PostMapping("/verify-otp")
     public ResponseEntity<ApiResponse<UserDTO>> verifyOtp(@RequestBody UserDTO userDTO) {
         Optional<UserDTO> userOptional = userService.getUserByEmail(userDTO.getEmail());
         if (userOptional.isEmpty()) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Người dùng không tồn tại", null));
+            return ResponseEntity.status(202).body(ApiResponse.error("Người dùng không tồn tại", null));
+        }
+        UserDTO user = userOptional.get();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime otpGenerationTime = user.getOtpGenerationTime();
+        long minutesElapsed = Duration.between(otpGenerationTime, now).toMinutes();
+
+        if (minutesElapsed > 1) {
+            return ResponseEntity.status(201).body(ApiResponse.error("OTP đã hết hạn", null));
+        }
+
+        if (userDTO.getOtp().equals(user.getOtp())) {
+            user.setVerified(true);
+            UserDTO updatedUser = userService.updateUser(user.getId(), user);
+            return ResponseEntity.ok(ApiResponse.success("OTP xác thực thành công và người dùng đã được tạo", updatedUser));
+        } else {
+            return ResponseEntity.status(201).body(ApiResponse.error("OTP không hợp lệ", null));
+        }
+    }
+    @PostMapping("/resend-otp")
+    public ResponseEntity<ApiResponse<String>> resendOtp(@RequestBody UserDTO userDTO) {
+        Optional<UserDTO> userOptional = userService.getUserByEmail(userDTO.getEmail());
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(201).body(ApiResponse.error("Người dùng không tồn tại", null));
         }
 
         UserDTO user = userOptional.get();
-        if (userDTO.getOtp().equals(user.getOtp())) {
-            user.setVerified(true);
-            UserDTO savedUser = userService.addUsers(user);
-            return ResponseEntity.ok(ApiResponse.success("OTP xác thực thành công và người dùng đã được tạo", savedUser));
-        } else {
-            return ResponseEntity.status(400).body(ApiResponse.error("OTP không hợp lệ", null));
-        }
-    }
+        String newOtp = utils.generateOtp();
+        user.setOtp(newOtp);
+        user.setOtpGenerationTime(LocalDateTime.now());
+        userService.updateUser(user.getId(), user);
 
+        emailService.sendSimpleMail(user.getEmail(), "Xác thực OTP", "Mã OTP mới của bạn là: " + newOtp);
+
+        return ResponseEntity.ok(ApiResponse.success("OTP mới đã được gửi đến email của bạn", null));
+    }
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserDTO>> login(@RequestBody UserDTO userDTO) {
         // Kiểm tra username
@@ -202,5 +229,11 @@ public class AuthController {
         user.setPassword(userDTO.getPassword());
         userService.updateUser(user.getId(), user);
         return ResponseEntity.ok(ApiResponse.success("Đổi mật khẩu thành công", null));
+    }
+
+    @GetMapping("/count")
+    public ApiResponse<Long> countUsers() {
+        long count = userService.countUsers();
+        return ApiResponse.success("Số lượng người dùng", count);
     }
 }
