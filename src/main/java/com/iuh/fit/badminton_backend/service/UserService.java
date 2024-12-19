@@ -145,4 +145,10 @@ public class UserService {
     public long countUsers() {
         return userRepository.count();
     }
+
+    // change password
+    @Transactional
+    public void changePassword(String newPassword, String username) {
+        userRepository.changePassword(newPassword, username);
+    }
 }

@@ -2,6 +2,8 @@ package com.iuh.fit.badminton_backend.repository;
 
 import com.iuh.fit.badminton_backend.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,5 +21,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Find users by their role
     List<User> findByRole(String role);
 
-    // You can add more custom queries if needed
+    // change password
+    @Modifying
+    @Query("UPDATE User u SET u.password = :newPassword WHERE u.username = :username")
+    void changePassword(String newPassword, String username);
+
 }

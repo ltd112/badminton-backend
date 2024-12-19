@@ -1,5 +1,6 @@
 package com.iuh.fit.badminton_backend.service;
 
+import com.iuh.fit.badminton_backend.dto.RevenueByCourseDTO;
 import com.iuh.fit.badminton_backend.mapper.GenericMapper;
 import com.iuh.fit.badminton_backend.models.Course;
 import com.iuh.fit.badminton_backend.dto.CourseDTO;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseService {
@@ -25,14 +27,23 @@ public class CourseService {
 
     /**
      * Tìm tất cả các khóa học
+     *
      * @return danh sách các khóa học
      */
     public List<CourseDTO> getAllCourses() {
-        List<Course> courses = courseRepository.findAll();
-        return courses.stream()
-                .map(course -> genericMapper.convertToDto(course, CourseDTO.class))
-                .toList();
+        List<Object[]> results = courseRepository.findAllCoursesWithAvgRating();
+        return results.stream()
+                .map(result -> {
+                    Course course = (Course) result[0];
+                    double avgRating = (double) result[1];
+                    CourseDTO courseDTO = genericMapper.convertToDto(course, CourseDTO.class);
+                    courseDTO.setAverageRating(avgRating); // Set the average rating
+                    courseDTO.setLessons(null); // Exclude lessons
+                    return courseDTO;
+                })
+                .collect(Collectors.toList());
     }
+
 
     /**
      * Tìm khóa học theo tên
@@ -78,18 +89,31 @@ public class CourseService {
     }
 
     public List<CourseDTO> getCoursesWithHighestRatingsInPeriod(LocalDate startDate, LocalDate endDate) {
-        List<Course> courses = courseRepository.findCoursesWithHighestRatingsInPeriod(startDate, endDate);
-        return courses.stream()
-                .map(course -> genericMapper.convertToDto(course, CourseDTO.class))
-                .toList();
+        List<Object[]> results = courseRepository.findCoursesWithHighestRatingsInPeriod(startDate, endDate);
+        return results.stream()
+                .map(result -> {
+                    Course course = (Course) result[0];
+                    double avgRating = (double) result[1];
+                    CourseDTO courseDTO = genericMapper.convertToDto(course, CourseDTO.class);
+                    courseDTO.setAverageRating(avgRating); // Set the average rating
+                    courseDTO.setLessons(null); // Exclude lessons
+                    return courseDTO;
+                })
+                .collect(Collectors.toList());
     }
 
-    public List<CourseDTO> getCoursesWithHighestRatings() {
+     public List<CourseDTO> getCoursesWithHighestRatings() {
         return courseRepository.findCoursesWithHighestRatings().stream()
-                .map(course -> genericMapper.convertToDto(course, CourseDTO.class))
-                .toList();
+                .map(result -> {
+                    Course course = (Course) result[0];
+                    double avgRating = (double) result[1];
+                    CourseDTO courseDTO = genericMapper.convertToDto(course, CourseDTO.class);
+                    courseDTO.setAverageRating(avgRating); // Set the average rating
+                    courseDTO.setLessons(null); // Exclude lessons
+                    return courseDTO;
+                })
+                .collect(Collectors.toList());
     }
-
     /**
      * Tìm khóa học theo ID
      * @param id ID của khóa học
@@ -102,6 +126,52 @@ public class CourseService {
 
     public long countCourses() {
         return courseRepository.count();
+    }
+
+    public List<CourseDTO> searchCoursesByName(String keyword) {
+        List<Object[]> results = courseRepository.findCoursesByNameContainingWithAvgRating(keyword);
+        return results.stream()
+                .map(result -> {
+                    Course course = (Course) result[0];
+                    double avgRating = (double) result[1];
+                    CourseDTO courseDTO = genericMapper.convertToDto(course, CourseDTO.class);
+                    courseDTO.setAverageRating(avgRating); // Set the average rating
+                    courseDTO.setLessons(null); // Exclude lessons
+                    return courseDTO;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<CourseDTO> getCourseWithHighestTotalFeePaid() {
+        List<Object[]> results = courseRepository.findCourseWithHighestTotalFeePaid();
+        return results.stream()
+                .map(result -> {
+                    Course course = (Course) result[0];
+                    double totalFeePaid = (double) result[1];
+                    CourseDTO courseDTO = genericMapper.convertToDto(course, CourseDTO.class);
+                    courseDTO.setTotalFeePaid(totalFeePaid); // Set the total fee paid
+                    return courseDTO;
+                })
+                .collect(Collectors.toList());
+    }
+    //
+    public List<CourseDTO> getCourseWithHighestPurchaseCount() {
+        List<Object[]> results = courseRepository.findCourseWithHighestPurchaseCount();
+        return results.stream()
+                .map(result -> {
+                    Course course = (Course) result[0];
+                    long purchaseCount = (long) result[1];
+                    CourseDTO courseDTO = genericMapper.convertToDto(course, CourseDTO.class);
+                    courseDTO.setPurchaseCount(purchaseCount); // Set the purchase count
+                    return courseDTO;
+                })
+                .collect(Collectors.toList());
+    }
+    public List<RevenueByCourseDTO> getRevenueByCourseInPeriod(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> results = courseRepository.findRevenueByCourseInPeriod(startDate, endDate);
+        return results.stream()
+                .map(result -> new RevenueByCourseDTO((String) result[0], (Double) result[1]))
+                .collect(Collectors.toList());
     }
 
 }

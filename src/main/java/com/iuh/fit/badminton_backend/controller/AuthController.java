@@ -225,9 +225,7 @@ public class AuthController {
                     .body(ApiResponse.error("Tên đăng nhập không tồn tại", null));
         }
 
-        UserDTO user = userOptional.get();
-        user.setPassword(userDTO.getPassword());
-        userService.updateUser(user.getId(), user);
+        userService.changePassword(userDTO.getPassword(), username);
         return ResponseEntity.ok(ApiResponse.success("Đổi mật khẩu thành công", null));
     }
 

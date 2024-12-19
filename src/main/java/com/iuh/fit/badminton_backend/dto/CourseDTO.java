@@ -16,10 +16,13 @@ public class CourseDTO {
 
     private Level level; // Cấp độ khóa học: BEGINNER, INTERMEDIATE, ADVANCED
 
-
     private Double fee; // Học phí của khóa học
 
-//    private Double averageRating;
+    private Double averageRating;
+
+    private long purchaseCount; // New field for purchase count
+
+    private Double totalFeePaid; // Tổng số tiền học phí đã được thanh toán
 
     private List<FeedbackDTO> feedbacks; // Phản hồi từ học viên
 

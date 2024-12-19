@@ -33,8 +33,8 @@ public class RegistrationController {
     }
     // Get registrations by student ID and course ID
     @GetMapping("/student/{studentId}/course/{courseId}")
-    public ResponseEntity<RegistrationDTO> getRegistrationsByStudentIdAndCourseId(@PathVariable Long studentId, @PathVariable Long courseId) {
-        RegistrationDTO registration = registrationService.getRegistrationsByStudentIdAndCourseId(studentId, courseId);
+    public ResponseEntity<Optional<RegistrationDTO>> getRegistrationsByStudentIdAndCourseId(@PathVariable Long studentId, @PathVariable Long courseId) {
+        Optional<RegistrationDTO> registration = registrationService.getRegistrationsByStudentIdAndCourseId(studentId, courseId);
         return new ResponseEntity<>(registration, HttpStatus.OK);
     }
     // Get registrations by payment status
@@ -51,15 +51,14 @@ public class RegistrationController {
     }
     @PostMapping
     public ResponseEntity<ApiResponse<RegistrationDTO>> saveOrUpdateRegistration(@RequestBody RegistrationDTO registrationDTO) {
-        RegistrationDTO existingRegistrations = registrationService.getRegistrationsByStudentIdAndCourseId(registrationDTO.getStudentId(), registrationDTO.getCourseId());
-        if (existingRegistrations != null) {
-            System.out.println(registrationService.getRegistrationsByStudentIdAndCourseId(registrationDTO.getStudentId(), registrationDTO.getCourseId()));
+        Optional<RegistrationDTO> existingRegistrations = registrationService.getRegistrationsByStudentIdAndCourseId(registrationDTO.getStudentId(), registrationDTO.getCourseId());
+        if (existingRegistrations.isPresent()) {
+            System.out.println(existingRegistrations.get());
             return ResponseEntity.status(201)
                     .body(ApiResponse.error("Khóa học đã được thanh toán trước đó", null));
-
         }
         RegistrationDTO savedRegistration = registrationService.saveOrUpdateRegistration(registrationDTO);
-        return  ResponseEntity.status(200)
+        return ResponseEntity.status(200)
                 .body(ApiResponse.success("Thanh toán khóa học thành công", savedRegistration));
     }
     // Delete registration
@@ -93,4 +92,6 @@ public class RegistrationController {
         Map<String, Double> revenue = registrationService.getRevenueBetweenMonths(startYear, startMonth, endYear, endMonth);
         return ApiResponse.success("Doanh thu từ tháng " + startMonth + " đến tháng " + endMonth, revenue);
     }
+
+
 }

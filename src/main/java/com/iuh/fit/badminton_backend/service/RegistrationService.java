@@ -56,10 +56,11 @@ public class RegistrationService {
      * @param courseId ID of the course.
      * @return list of registration DTOs.
      */
-    public RegistrationDTO getRegistrationsByStudentIdAndCourseId(Long studentId, Long courseId) {
-        Registration registration = registrationRepository.findByStudentIdAndCourseId(studentId, courseId);
-        return genericMapper.convertToDto(registration, RegistrationDTO.class);
+    public Optional<RegistrationDTO> getRegistrationsByStudentIdAndCourseId(Long studentId, Long courseId) {
+        Optional<Registration> registration = registrationRepository.findFirstByStudentIdAndCourseId(studentId, courseId);
+        return registration.map(reg -> genericMapper.convertToDto(reg, RegistrationDTO.class));
     }
+
 
     /**
      * Find registrations by payment status.
